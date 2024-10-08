@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Portal - Sacred Heart Academy of Novaliches</title>
+    <link rel="icon" href="https://sacredheartportal.edu.ph/favicon.ico" type="image/x-icon">
+    <style>
+        /* Reset and Base Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        /* Top Navigation Bar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #006400; /* Dark Green */
+            color: white;
+            padding: 10px 20px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        .navbar .logo {
+            display: flex;
+            align-items: center;
+        }
+        .navbar .logo img {
+            max-height: 50px;
+            margin-right: 10px;
+        }
+        .navbar .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+        .navbar .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .navbar .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 60px; /* Height of navbar */
+            left: 0;
+            width: 250px;
+            height: 100%;
+            background-color: #004d00; /* Darker Green */
+            padding-top: 20px;
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(0);
+            z-index: 999;
+        }
+        .sidebar.collapsed {
+            transform: translateX(-100%);
+        }
+        .sidebar a {
+            display: block;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+        .sidebar a:hover {
+            background-color: #006400;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-top: 60px; /* Height of navbar */
+            margin-left: 250px; /* Width of sidebar */
+            padding: 20px;
+            flex: 1;
+            transition: margin-left 0.3s ease-in-out;
+        }
+        .main-content.full-width {
+            margin-left: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            border-bottom: 2px solid #006400;
+            padding-bottom: 10px;
+            color: #006400;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .section {
+            padding: 15px;
+            margin-bottom: 20px;
+            display: none;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            transition: all 0.3s ease-in-out;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #006400;
+            color: white;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+        }
+
+        /* Login Form */
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .login-container h2 {
+            margin-bottom: 20px;
+            color: #006400;
+        }
+        .login-container input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 1em;
+        }
+        .login-container button {
+            width: 100%;
+            padding: 12px;
+            background-color: #006400;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .login-container button:hover {
+            background-color: #004d00;
+        }
+        .login-container p {
+            margin-top: 15px;
+            color: red;
+            display: none;
+        }
+
+        /* Slide-In Welcome Message */
+        #welcome-slide {
+            position: fixed;
+            top: 80px;
+            right: -300px; /* Hidden off-screen */
+            width: 250px;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            border-radius: 8px;
+            transition: right 0.5s ease-in-out;
+            z-index: 1000;
+        }
+        #welcome-slide.show {
+            right: 20px; /* Slide into view */
+        }
+        #welcome-slide p {
+            margin: 0;
+            color: #006400;
+            font-size: 1.1em;
+            text-align: center;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 200px;
+            }
+            .main-content {
+                margin-left: 200px;
+            }
+        }
+        @media (max-width: 768px) {
+            .navbar .nav-links {
+                display: none;
+            }
+            .navbar .menu-toggle {
+                display: block;
+                cursor: pointer;
+            }
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .main-content.full-width {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation Bar -->
+    <div class="navbar">
+        <div class="logo">
+            <img src="https://i0.wp.com/shan.edu.ph/wp-content/uploads/2022/04/sacred-heart-academy-green-logo.png?resize=1536%2C1518&ssl=1" alt="Sacred Heart Academy Logo">
+            <span>Sacred Heart Academy</span>
+        </div>
+        <div class="nav-links">
+            <a href="#home">Home</a>
+            <a href="#profile">Profile</a>
+            <a href="#grades">Grades</a>
+            <a href="#announcements">Announcements</a>
+            <a href="#logout" onclick="logout()">Logout</a>
+        </div>
+        <div class="menu-toggle" onclick="toggleSidebar()" aria-label="Toggle navigation menu">
+            &#9776;
+        </div>
+    </div>
+
+    <!-- Sidebar Menu -->
+    <div class="sidebar" id="sidebar">
+        <a href="#home" onclick="toggleSection('homeContent')">Home</a>
+        <a href="#profile" onclick="toggleSection('studentProfileContent')">Student Profile</a>
+        <a href="#grades" onclick="toggleSection('gradesContent')">Grades</a>
+        <a href="#records" onclick="toggleSection('studentRecordContent')">Student Record</a>
+        <a href="#announcements" onclick="toggleSection('announcementsContent')">Announcements</a>
+        <a href="#materials" onclick="toggleSection('learningMaterialsContent')">Learning Materials</a>
+        <a href="#tutorial" onclick="toggleSection('tutorialContent')">Tutorial</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="main-content">
+        <!-- Login Form Section -->
+        <div class="login-container" id="login-container">
+            <h2>Login to Student Portal</h2>
+            <input type="text" id="username" placeholder="Enter your username" required>
+            <input type="password" id="password" placeholder="Enter your password" required>
+            <button onclick="login()">Login</button>
+            <p id="error-message">Invalid username or password. Please try again.</p>
+        </div>
+
+        <!-- Portal Content -->
+        <div id="portal-content" style="display: none;">
+            <div class="container">
+                <!-- Home Section -->
+                <div id="homeContent" class="section" style="display: block;">
+                    <h2>Welcome to the Student Portal</h2>
+                    <p>Access your grades, schedule, announcements, and more.</p>
+                </div>
+
+                <!-- Student Profile Section -->
+                <div id="studentProfileContent" class="section">
+                    <h2>Student Profile</h2>
+                    <p>View and update your personal information.</p>
+                    <!-- Add more detailed profile information here -->
+                </div>
+
+                <!-- Grades Section -->
+                <div id="gradesContent" class="section">
+                    <h2>Grades</h2>
+                    <p>Check your academic performance and progress.</p>
+                    <!-- Add grade details here -->
+                </div>
+
+                <!-- Student Record Section -->
+                <div id="studentRecordContent" class="section">
+                    <h2>Student Record</h2>
+                    <p>Access your enrollment history and academic records.</p>
+                    <!-- Add student record details here -->
+                </div>
+
+                <!-- Announcements Section -->
+                <div id="announcementsContent" class="section">
+                    <h2>Announcements</h2>
+                    <ul>
+                        <li>New semester starts on September 1st.</li>
+                        <li>Library will be closed on national holidays.</li>
+                        <li>Online learning materials are now available.</li>
+                        <!-- Add more announcements here -->
+                    </ul>
+                </div>
+
+                <!-- Learning Materials Section -->
+                <div id="learningMaterialsContent" class="section">
+                    <h2>Learning Materials</h2>
+                    <p>Access your course materials and resources.</p>
+                    <!-- Add links or embedded materials here -->
+                </div>
+
+                <!-- Tutorial Section -->
+                <div id="tutorialContent" class="section">
+                    <h2>Tutorial</h2>
+                    <p>Watch tutorials on how to navigate the portal and use its features.</p>
+                    <!-- Add tutorial videos or guides here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide-In Welcome Message -->
+    <div id="welcome-slide">
+        <p>Welcome, Student!</p>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 Sacred Heart Academy of Novaliches. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Toggle Sidebar for Mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        // Toggle Sections
+        function toggleSection(sectionId) {
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                if (section.id === sectionId) {
+                    section.style.display = section.style.display === 'block' ? 'none' : 'block';
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+
+            // Close sidebar on mobile after selection
+            if (window.innerWidth <= 768) {
+                toggleSidebar();
+            }
+        }
+
+        // Login Function
+        function login() {
+            const usernameInput = document.getElementById('username').value.trim();
+            const passwordInput = document.getElementById('password').value.trim();
+            const errorMessage = document.getElementById('error-message');
+
+            // In a real application, replace this with server-side authentication
+            const validUsername = 'student';
+            const validPassword = 'password123';
+
+            if (usernameInput === validUsername && passwordInput === validPassword) {
+                document.getElementById('login-container').style.display = 'none';
+                document.getElementById('portal-content').style.display = 'block';
+
+                // Show the slide-in welcome message
+                const welcomeSlide = document.getElementById('welcome-slide');
+                welcomeSlide.classList.add('show');
+
+                // Automatically hide the welcome slide after 3 seconds
+                setTimeout(() => {
+                    welcomeSlide.classList.remove('show');
+                }, 3000);
+            } else {
+                errorMessage.style.display = 'block';
+            }
+        }
+
+        // Logout Function
+        function logout() {
+            document.getElementById('portal-content').style.display = 'none';
+            document.getElementById('login-container').style.display = 'block';
+        }
+
+        // Close sections when clicking outside (optional)
+        window.onclick = function(event) {
+            if (!event.target.matches('.nav-links a') && !event.target.matches('.sidebar a') && !event.target.matches('.menu-toggle')) {
+                const sections = document.querySelectorAll('.section');
+                sections.forEach(section => {
+                    section.style.display = 'none';
+                });
+            }
+        }
+    </script>
+
+</body>
+</html>
